@@ -1,71 +1,34 @@
 import { useEffect, useState } from "react";
 
-const tabs = ["posts", "comments", "albums"];
-
 function Content() {
-    const [posts, setPosts] = useState([]);
-    const [types, setTypes] = useState("posts");
-    const [showGoToTop, setShowGoToTop] = useState(false);
+    const [avatar, setAvatar] = useState();
 
     useEffect(() => {
-        fetch(`https://jsonplaceholder.typicode.com/${types}`)
-            .then((res) => res.json())
-            .then((posts) => {
-                setPosts(posts);
-            });
-        console.log(types);
-    }, [types]);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY >= 200) {
-                setShowGoToTop(true);
-            } else {
-                setShowGoToTop(false);
-            }
-        };
-
-        window.addEventListener("scroll", handleScroll);
-
+        // cleanUp
         return () => {
-            window.removeEventListener("scroll", handleScroll);
+            avatar && URL.revokeObjectURL(avatar.preview);
         };
-    }, []);
+    }, [avatar]);
+
+    const handleImg = (e) => {
+        const file = e.target.files[0];
+
+        file.preview = URL.createObjectURL(file);
+
+        setAvatar(file);
+    };
     return (
         <div>
-            {tabs.map((tab) => (
-                <button
-                    key={tab}
-                    style={
-                        tab === types
-                            ? {
-                                  color: "lightblue",
-                                  background: "#fff",
-                              }
-                            : {}
-                    }
-                    onClick={() => setTypes(tab)}
-                >
-                    {tab}
-                </button>
-            ))}
-
-            <ul>
-                {posts.map((post) => (
-                    <li key={post.id}>{post.title || post.name}</li>
-                ))}
-            </ul>
-
-            {showGoToTop && (
-                <button
-                    style={{
-                        position: "fixed",
-                        bottom: 20,
-                        right: 20,
-                    }}
-                >
-                    go to top
-                </button>
+            <h1>choose file:</h1>
+            <input type="file" onChange={handleImg} />
+            <br />
+            {avatar && (
+                <img
+                    style={{ marginTop: 30 }}
+                    src={avatar.preview}
+                    alt=""
+                    width="50%"
+                />
             )}
         </div>
     );
